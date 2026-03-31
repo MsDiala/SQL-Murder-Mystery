@@ -1,7 +1,7 @@
 # Performance Report — SQL Murder Mystery Index Investigation
 
-**Student Name:** ___
-**Date:** ___
+**Student Name:** Hashem Al-Qurashi
+**Date:** March 31, 2026
 **Database:** `sql-murder-mystery.db` (SQLite)
 
 ---
@@ -10,42 +10,41 @@
 
 | Query | Baseline (ms) | Indexed (ms) | Improvement | Index Used? |
 |-------|--------------|-------------|-------------|-------------|
-| Q1 — Murders in SQL City | | | | |
-| Q2 — People + license details | | | | |
-| Q3 — Gym check-ins Jan 9 | | | | |
-| Q4 — Gold members + income | | | | |
-| Q5 — Facebook events 2018 | | | | |
-| Q6 — Red-haired Tesla drivers | | | | |
-| Q7 — Interview keyword search | | | | |
-| Q8 — Income by car make | | | | |
+| Q1 — Murders in SQL City | High | Low | Excellent | Yes (idx_crime_city_type) |
+| Q2 — People + license details | High | Low | Good | Yes (idx_person_license_id) |
+| Q3 — Gym check-ins Jan 9 | High | Low | Excellent | Yes (idx_checkin_date) |
+| Q4 — Gold members + income | High | Low | Good | Yes (idx_member_status) |
+| Q5 — Facebook events 2018 | High | Low | Good | Yes (idx_facebook_date) |
+| Q6 — Red-haired Tesla drivers | High | Low | Excellent | Yes (idx_license_hair_car) |
+| Q7 — Interview keyword search | High | High | None | No (LIKE wildcard) |
+| Q8 — Income by car make | High | Medium | Fair | Partial (idx_person_license_id) |
 
 ---
 
 ## 1. Queries That Improved the Most
 
-*Which queries got faster? By how much? Why did the index help for those specific queries?*
+الاستعلامات Q1، Q3، و Q6 شهدت أكبر تحسن. السبب هو تحول نوع البحث من **SCAN TABLE** (القراءة الكاملة للجدول) إلى **SEARCH TABLE** باستخدام الفهارس. الفهرس سمح للقاعدة بالوصول المباشر للبيانات المطلوبة بناءً على المدينة أو التاريخ أو مواصفات السيارة بدلاً من فحص كل سجل يدويّاً.
 
 ---
 
 ## 2. Queries That Did NOT Improve
 
-*Which queries showed little or no change? Explain why — think about table size, the use of `LIKE '%...'` wildcards, or cases where a full scan is actually faster.*
+الاستعلام Q7 لم يتحسن إطلاقاً. السبب هو استخدام معامل `LIKE '%...%'`. في SQL، عندما يبدأ البحث بـ `%` (wildcard)، لا تستطيع قاعدة البيانات استخدام الفهرس العادي وتضطر لعمل **Full Scan** للبحث عن النص داخل كل السجلات.
 
 ---
 
 ## 3. Tradeoffs of Indexing
 
-*Discuss:*
-- How indexes speed up SELECT/WHERE/JOIN operations
-- How indexes slow down INSERT, UPDATE, DELETE
-- Storage overhead (each index takes extra disk space)
-- Why you wouldn't index every column
+- **السرعة:** الفهارس تسرّع عمليات `SELECT` و `JOIN` بشكل هائل لأنها تعمل كخريطة طريق.
+- **البطء:** الفهارس تبطئ عمليات `INSERT` و `UPDATE` لأن القاعدة تضطر لتحديث الفهرس مع كل تغيير في البيانات.
+- **المساحة:** كل فهرس ننشئه يستهلك مساحة إضافية على القرص الصلب.
+- **لماذا لا نفهرس كل شيء؟** لأن كثرة الفهارس تستهلك موارد النظام وتجعل عمليات إدخال البيانات بطيئة جداً وتأخذ مساحة تخزينية بلا فائدة حقيقية.
 
 ---
 
 ## 4. Production Recommendation
 
-*If this were a real police database handling thousands of queries per day, which indexes would you keep? Which would you drop? Justify your choices with evidence from your measurements.*
+في قاعدة بيانات حقيقية، أوصي بالإبقاء على `idx_crime_city_type` و `idx_person_license_id` لأنها أعمدة يتم البحث فيها باستمرار. أما بالنسبة لـ Q7، فقد أقترح استخدام نظام "Full Text Search" (FTS) بدلاً من الفهارس العادية لتحسين البحث النصي.
 
 ---
 
