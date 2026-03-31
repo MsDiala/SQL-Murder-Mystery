@@ -1,10 +1,8 @@
 # explain_baseline.md — Before Indexing
 
-> Run each query with `EXPLAIN QUERY PLAN` and paste the output below.
-> Also run `.timer on` before each query to capture execution time.
+> Run each query with `EXPLAIN ANALYZE` and paste the full output below.
 >
-> **Connect:** `sqlite3 sql-murder-mystery.db`
-> Then type: `.timer on`
+> **Connect:** `docker exec -it murder_db psql -U postgres -d murder_mystery`
 
 ---
 
@@ -27,6 +25,7 @@ USE TEMP B-TREE FOR ORDER BY
 **Scan Type:** SCAN person + SEARCH drivers_license USING INTEGER PRIMARY KEY  
 **Notes:** person table is fully scanned. drivers_license is accessed efficiently using primary key. ORDER BY requires TEMP B-TREE (no index on name).
 
+
 ---
 QUERY PLAN
 SCAN p
@@ -47,13 +46,13 @@ SEARCH m USING INDEX sqlite_autoindex_get_fit_now_member_1 (id=?)
 USE TEMP B-TREE FOR ORDER BY
 ---
 
-## Q4 — Gold gym members and their income
 
 ## Q4 — Gold gym members and their income
 
 **Execution Time:** ___ ms  
 **Scan Type:** SCAN get_fit_now_member + SEARCH person + SEARCH income  
 **Notes:** Full scan on get_fit_now_member. Joins to person and income use primary key lookups (efficient). ORDER BY requires TEMP B-TREE (no index on annual_income).
+
 
 ---
 QUERY PLAN
@@ -65,9 +64,11 @@ USE TEMP B-TREE FOR ORDER BY
 
 ## Q5 — People who attended Facebook events in 2018
 
+
 **Execution Time:** ___ ms  
 **Scan Type:** SCAN facebook_event_checkin + SEARCH person USING INTEGER PRIMARY KEY  
 **Notes:** Full scan on facebook_event_checkin (large table). Join to person is efficient via primary key. ORDER BY requires TEMP B-TREE (no index on date).
+
 
 ---
 QUERY PLAN
@@ -81,6 +82,7 @@ USE TEMP B-TREE FOR ORDER BY
 **Execution Time:** ___ ms  
 **Scan Type:** SCAN person + SEARCH drivers_license USING INTEGER PRIMARY KEY  
 **Notes:** Full scan on person table. drivers_license is accessed efficiently via primary key. Filtering is applied after join (no index on hair_color or car_make). ORDER BY requires TEMP B-TREE.
+
 
 ---
 QUERY PLAN
@@ -102,7 +104,6 @@ SEARCH p USING INTEGER PRIMARY KEY (rowid=?)
 ---
 
 ## Q8 — Average income by car make
-
 **Execution Time:** ___ ms  
 **Scan Type:** SCAN person + SEARCH drivers_license USING INTEGER PRIMARY KEY + SEARCH income USING INTEGER PRIMARY KEY  
 **Notes:** Full scan on person. Joins to drivers_license and income use primary key lookups. Query also uses TEMP B-TREE for both GROUP BY and ORDER BY, which adds sorting/aggregation overhead.
@@ -114,4 +115,4 @@ SEARCH dl USING INTEGER PRIMARY KEY (rowid=?)
 SEARCH i USING INTEGER PRIMARY KEY (rowid=?)
 USE TEMP B-TREE FOR GROUP BY
 USE TEMP B-TREE FOR ORDER BY
----
+

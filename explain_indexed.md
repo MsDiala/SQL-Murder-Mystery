@@ -1,7 +1,7 @@
 # explain_indexed.md — After Indexing
 
 > Re-run the same 8 queries after applying your indexes from `indexes.sql`.
-> Compare with `explain_baseline.md` — look for SCAN → SEARCH improvements.
+> Compare with `explain_baseline.md` — look for Seq Scan → Index Scan improvements.
 
 ---
 
@@ -35,6 +35,7 @@ USE TEMP B-TREE FOR ORDER BY
 **Execution Time:** 0.006107 ms  
 **Scan Type:** SEARCH get_fit_now_check_in USING INDEX + SEARCH get_fit_now_member USING INDEX  
 **Notes:** Improved from baseline. The query now uses an index on `get_fit_now_check_in(check_in_date)` to filter check-ins by date, avoiding a full table scan. The join to `get_fit_now_member` continues to use its existing index. ORDER BY still requires a TEMP B-TREE, so sorting is not fully optimized.
+
 
 ---
 QUERY PLAN
@@ -108,3 +109,4 @@ SEARCH i USING INTEGER PRIMARY KEY (rowid=?)
 USE TEMP B-TREE FOR GROUP BY
 USE TEMP B-TREE FOR ORDER BY
 ---
+
