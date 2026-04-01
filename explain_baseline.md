@@ -1,10 +1,8 @@
 # explain_baseline.md — Before Indexing
 
-> Run each query with `EXPLAIN QUERY PLAN` and paste the output below.
-> Also run `.timer on` before each query to capture execution time.
+> Run each query with `EXPLAIN ANALYZE` and paste the full output below.
 >
-> **Connect:** `sqlite3 sql-murder-mystery.db`
-> Then type: `.timer on`
+> **Connect:** `docker exec -it murder_db psql -U postgres -d murder_mystery`
 
 ---
 
@@ -12,10 +10,10 @@
 
 **Execution Time:** ___ ms
 **Scan Type:** ___
-**Notes:** ___
+**Join Method:** ___
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
 ---
@@ -24,10 +22,10 @@
 
 **Execution Time:** ___ ms
 **Scan Type:** ___
-**Notes:** ___
+**Join Method:** ___
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
 ---
@@ -36,10 +34,10 @@
 
 **Execution Time:** ___ ms
 **Scan Type:** ___
-**Notes:** ___
+**Join Method:** ___
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
 ---
@@ -48,10 +46,10 @@
 
 **Execution Time:** ___ ms
 **Scan Type:** ___
-**Notes:** ___
+**Join Method:** ___
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
 ---
@@ -60,10 +58,10 @@
 
 **Execution Time:** ___ ms
 **Scan Type:** ___
-**Notes:** ___
+**Join Method:** ___
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
 ---
@@ -72,10 +70,10 @@
 
 **Execution Time:** ___ ms
 **Scan Type:** ___
-**Notes:** ___
+**Join Method:** ___
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
 ---
@@ -84,10 +82,10 @@
 
 **Execution Time:** ___ ms
 **Scan Type:** ___
-**Notes:** ___
+**Join Method:** ___
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
 ---
@@ -96,8 +94,8 @@
 
 **Execution Time:** ___ ms
 **Scan Type:** ___
-**Notes:** ___
+**Join Method:** ___
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```

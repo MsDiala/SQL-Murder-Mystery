@@ -2,7 +2,7 @@
 # explain_indexed.md — After Indexing
 
 > Re-run the same 8 queries after applying your indexes from `indexes.sql`.
-> Compare with `explain_baseline.md` — look for SCAN → SEARCH improvements.
+> Compare with `explain_baseline.md` — look for Seq Scan → Index Scan improvements.
 
 ---
 
@@ -12,7 +12,7 @@
 **Scan Type:** SEARCH crime_scene_report
 **Index Used:** idx_crime_city_type
 
-```
+```text
 QUERY PLAN
 |--SEARCH crime_scene_report USING INDEX idx_crime_city_type (city=? AND type=?)
 `--USE TEMP B-TREE FOR ORDER BY
@@ -27,7 +27,7 @@ Run Time: real 0.003981 user 0.000000 sys 0.000000
 **Scan Type:** SCAN p
 **Index Used:** None
 
-```
+```text
 QUERY PLAN
 |--SCAN p
 |--SEARCH dl USING INTEGER PRIMARY KEY (rowid=?)
@@ -43,7 +43,7 @@ Run Time: real 0.003140 user 0.000000 sys 0.000000
 **Scan Type:** SEARCH ci
 **Index Used:** idx_checkin_date
 
-```
+```text
 QUERY PLAN
 |--SEARCH ci USING INDEX idx_checkin_date (check_in_date=?)
 |--SEARCH m USING INDEX sqlite_autoindex_get_fit_now_member_1 (id=?)
@@ -59,7 +59,7 @@ Run Time: real 0.004924 user 0.000000 sys 0.000000
 **Scan Type:** SEARCH m
 **Index Used:** idx_member_status
 
-```
+```text
 QUERY PLAN
 |--SEARCH m USING INDEX idx_member_status (membership_status=?)
 |--SEARCH p USING INTEGER PRIMARY KEY (rowid=?)
@@ -76,7 +76,7 @@ Run Time: real 0.005227 user 0.000000 sys 0.000000
 **Scan Type:** SEARCH fe
 **Index Used:** idx_facebook_date
 
-```
+```text
 QUERY PLAN
 |--SEARCH fe USING INDEX idx_facebook_date (date>? AND date<?)
 `--SEARCH p USING INTEGER PRIMARY KEY (rowid=?)
@@ -91,7 +91,7 @@ Run Time: real 0.022078 user 0.000000 sys 0.000000
 **Scan Type:** SEARCH dl, SEARCH p
 **Index Used:** idx_license_hair_car, idx_person_license_id
 
-```
+```text
 QUERY PLAN
 |--SEARCH dl USING INDEX idx_license_hair_car (hair_color=? AND car_make=?)
 |--SEARCH p USING INDEX idx_person_license_id (license_id=?)
@@ -107,7 +107,7 @@ Run Time: real 0.004827 user 0.000000 sys 0.000000
 **Scan Type:** SCAN i
 **Index Used:** None
 
-```
+```text
 QUERY PLAN
 |--SCAN i
 `--SEARCH p USING INTEGER PRIMARY KEY (rowid=?)
@@ -122,7 +122,7 @@ Run Time: real 0.002249 user 0.000000 sys 0.000000
 **Scan Type:** SCAN p
 **Index Used:** None
 
-```
+```text
 QUERY PLAN
 |--SCAN p
 |--SEARCH i USING INTEGER PRIMARY KEY (rowid=?)
