@@ -1,5 +1,5 @@
 # Module 3 — Stretch: SQL Performance Investigation
-### 🔍 Database: SQL Murder Mystery
+### 🔍 Database: SQL Murder Mystery (PostgreSQL)
 
 > **Honors Track.** This stretch assignment is not required for program completion but counts toward Honors distinction.
 > Only work on this if you have completed **all core assignments** for this module and are **On Track or Advanced**.
@@ -11,13 +11,13 @@
 
 A murder was committed in **SQL City** on January 15, 2018. The detective's database is full of clues — but the queries are *slow*. Your job isn't just to run queries; it's to understand **why they're slow** and **make them faster**.
 
-You'll use `EXPLAIN QUERY PLAN` to read execution plans, add indexes, and measure the impact. This is a professional database skill — understanding why a query is slow and how to fix it is the difference between a working prototype and a production-ready system.
+You'll use `EXPLAIN ANALYZE` to read execution plans, add indexes, and measure the impact. This is a professional database skill — understanding why a query is slow and how to fix it is the difference between a working prototype and a production-ready system.
 
 ---
 
 ## 📚 What You'll Learn
 
-- Reading SQLite query execution plans (`EXPLAIN QUERY PLAN`)
+- Reading PostgreSQL query execution plans (`EXPLAIN ANALYZE`)
 - Index types and when they help (B-tree for equality/range, partial indexes)
 - The read/write tradeoff of indexing
 - Making evidence-based optimization decisions
@@ -26,7 +26,7 @@ You'll use `EXPLAIN QUERY PLAN` to read execution plans, add indexes, and measur
 
 ## 🗄️ The Database
 
-The database is a SQLite file: **`sql-murder-mystery.db`**
+The database is named **`murder_mystery`** and runs in a PostgreSQL container.
 
 ### Tables
 
@@ -56,28 +56,51 @@ person ──────────────── drivers_license        (
 
 ---
 
-## ⚙️ Setup (2 minutes)
+## ⚙️ Setup (5 minutes)
 
-### Option A — SQLite CLI (recommended)
-```bash
-sqlite3 sql-murder-mystery.db
-```
+### 1. Start the database
 
-### Option B — DB Browser for SQLite (GUI, beginner-friendly)
-Download from [https://sqlitebrowser.org](https://sqlitebrowser.org) and open `sql-murder-mystery.db`.
+Make sure Docker is installed, then run:
 
-### Option C — Docker (Postgres version)
 ```bash
 docker-compose up -d
+```
+
+This starts a PostgreSQL 15 container named `murder_db`.
+
+### 2. Load the schema and data
+
+```bash
 docker exec -i murder_db psql -U postgres -d murder_mystery < setup.sql
 ```
 
-### Verify the setup
-```sql
-SELECT name FROM sqlite_master WHERE type='table';
+### 3. Connect to the database
+
+```bash
+docker exec -it murder_db psql -U postgres -d murder_mystery
 ```
 
-You should see 9 tables listed.
+### 4. Verify the setup
+
+```sql
+SELECT table_name, (SELECT COUNT(*) FROM information_schema.columns WHERE table_name = t.table_name) AS col_count
+FROM information_schema.tables t
+WHERE table_schema = 'public'
+ORDER BY table_name;
+```
+
+You should see 9 tables. To check row counts:
+
+```sql
+SELECT 'crime_scene_report'      AS table_name, COUNT(*) FROM crime_scene_report
+UNION ALL SELECT 'drivers_license',              COUNT(*) FROM drivers_license
+UNION ALL SELECT 'facebook_event_checkin',       COUNT(*) FROM facebook_event_checkin
+UNION ALL SELECT 'get_fit_now_check_in',         COUNT(*) FROM get_fit_now_check_in
+UNION ALL SELECT 'get_fit_now_member',           COUNT(*) FROM get_fit_now_member
+UNION ALL SELECT 'income',                       COUNT(*) FROM income
+UNION ALL SELECT 'interview',                    COUNT(*) FROM interview
+UNION ALL SELECT 'person',                       COUNT(*) FROM person;
+```
 
 ---
 
@@ -85,14 +108,13 @@ You should see 9 tables listed.
 
 ### Task 1 — Baseline Execution Plans
 
-Run `EXPLAIN QUERY PLAN` on each of the 8 queries below. Save all output to `explain_baseline.md`.
+Run `EXPLAIN ANALYZE` on each of the 8 queries below. Save all output to `explain_baseline.md`.
 
 For each query, record:
-- 🔍 Scan type (`SCAN TABLE` = slow full scan, `SEARCH TABLE ... USING INDEX` = fast)
-- 🔗 Join strategy shown in the plan
-- ⚠️ Flag any `SCAN TABLE` on large tables — those are your targets
-
-> **Timing tip:** Run `.timer on` in the SQLite shell before your queries to measure execution time.
+- ⏱ Execution time (ms) — shown at the bottom of the `EXPLAIN ANALYZE` output
+- 🔍 Scan type (`Seq Scan` = slow full scan, `Index Scan` / `Bitmap Index Scan` = fast)
+- 🔗 Join method (`Nested Loop`, `Hash Join`, `Merge Join`)
+- ⚠️ Flag any `Seq Scan` on large tables — those are your targets
 
 ---
 
@@ -100,7 +122,7 @@ For each query, record:
 
 **Q1 — All murders in SQL City**
 ```sql
-EXPLAIN QUERY PLAN
+EXPLAIN ANALYZE
 SELECT date, description
 FROM crime_scene_report
 WHERE city = 'SQL City'
@@ -110,7 +132,7 @@ ORDER BY date DESC;
 
 **Q2 — People with their driver's license details**
 ```sql
-EXPLAIN QUERY PLAN
+EXPLAIN ANALYZE
 SELECT p.name, p.address_number, p.address_street_name,
        dl.age, dl.eye_color, dl.hair_color, dl.car_make, dl.car_model
 FROM person p
@@ -120,7 +142,7 @@ ORDER BY p.name;
 
 **Q3 — Gym members who checked in on January 9, 2018**
 ```sql
-EXPLAIN QUERY PLAN
+EXPLAIN ANALYZE
 SELECT m.name, m.membership_status, ci.check_in_time, ci.check_out_time
 FROM get_fit_now_member m
 JOIN get_fit_now_check_in ci ON m.id = ci.membership_id
@@ -130,7 +152,7 @@ ORDER BY ci.check_in_time;
 
 **Q4 — Gold gym members and their income**
 ```sql
-EXPLAIN QUERY PLAN
+EXPLAIN ANALYZE
 SELECT m.name, m.membership_status, i.annual_income
 FROM get_fit_now_member m
 JOIN person p ON m.person_id = p.id
@@ -141,7 +163,7 @@ ORDER BY i.annual_income DESC;
 
 **Q5 — People who attended Facebook events in 2018**
 ```sql
-EXPLAIN QUERY PLAN
+EXPLAIN ANALYZE
 SELECT p.name, fe.event_name, fe.date
 FROM person p
 JOIN facebook_event_checkin fe ON p.id = fe.person_id
@@ -151,7 +173,7 @@ ORDER BY fe.date DESC;
 
 **Q6 — Red-haired Tesla drivers**
 ```sql
-EXPLAIN QUERY PLAN
+EXPLAIN ANALYZE
 SELECT p.name, dl.hair_color, dl.car_make, dl.car_model, dl.plate_number
 FROM person p
 JOIN drivers_license dl ON p.license_id = dl.id
@@ -162,17 +184,17 @@ ORDER BY p.name;
 
 **Q7 — Interview transcripts mentioning the gym or murder**
 ```sql
-EXPLAIN QUERY PLAN
+EXPLAIN ANALYZE
 SELECT p.name, i.transcript
 FROM interview i
 JOIN person p ON i.person_id = p.id
-WHERE i.transcript LIKE '%gym%'
-   OR i.transcript LIKE '%murder%';
+WHERE i.transcript ILIKE '%gym%'
+   OR i.transcript ILIKE '%murder%';
 ```
 
 **Q8 — Average income by car make**
 ```sql
-EXPLAIN QUERY PLAN
+EXPLAIN ANALYZE
 SELECT dl.car_make,
        COUNT(*) AS drivers,
        ROUND(AVG(i.annual_income), 0) AS avg_income,
@@ -189,33 +211,29 @@ ORDER BY avg_income DESC;
 
 ### Task 2 — Add Indexes
 
-Based on your execution plans, identify tables that are being fully scanned unnecessarily. Edit `indexes.sql` with your indexes, then run:
+Based on your execution plans, identify tables being fully scanned unnecessarily. Edit `indexes.sql` with your chosen indexes, then run:
 
 ```bash
-# SQLite
-sqlite3 sql-murder-mystery.db < indexes.sql
-
-# Docker/Postgres
 docker exec -i murder_db psql -U postgres -d murder_mystery < indexes.sql
 ```
 
 Starter suggestions (add more based on your findings):
 
 ```sql
-CREATE INDEX idx_crime_city_type ON crime_scene_report(city, type);
-CREATE INDEX idx_person_license  ON person(license_id);
-CREATE INDEX idx_checkin_date    ON get_fit_now_check_in(check_in_date);
-CREATE INDEX idx_facebook_date   ON facebook_event_checkin(date);
-CREATE INDEX idx_facebook_person ON facebook_event_checkin(person_id);
+CREATE INDEX idx_crime_city_type  ON crime_scene_report(city, type);
+CREATE INDEX idx_person_license   ON person(license_id);
+CREATE INDEX idx_checkin_date     ON get_fit_now_check_in(check_in_date);
+CREATE INDEX idx_facebook_date    ON facebook_event_checkin(date);
+CREATE INDEX idx_facebook_person  ON facebook_event_checkin(person_id);
 ```
 
 ---
 
 ### Task 3 — Compare Performance
 
-Re-run `EXPLAIN QUERY PLAN` on the same 8 queries after adding indexes. Save output to `explain_indexed.md`.
+Re-run `EXPLAIN ANALYZE` on the same 8 queries after adding indexes. Save output to `explain_indexed.md`.
 
-Use `.timer on` to capture actual timing and note the before/after difference for each query.
+Note the execution time before and after for each query, and observe whether the scan type changed from `Seq Scan` to `Index Scan`.
 
 ---
 
@@ -224,7 +242,7 @@ Use `.timer on` to capture actual timing and note the before/after difference fo
 Complete `performance_report.md` documenting:
 
 - Which queries improved the most (and why the index helped)
-- Which queries showed no improvement (e.g., small table, `LIKE '%...'` wildcard, full-text search)
+- Which queries showed no improvement (e.g., small table, `ILIKE '%...'` wildcard, planner chose seq scan)
 - The tradeoffs: faster reads vs. slower writes, additional storage
 - Your production recommendation: which indexes would you actually keep?
 
@@ -235,9 +253,8 @@ Complete `performance_report.md` documenting:
 ```
 module-3-stretch-sql-performance/
 ├── README.md                    ← this file
-├── sql-murder-mystery.db        ← the database (do not modify the data!)
-├── docker-compose.yml           ← optional Postgres setup
-├── setup.sql                    ← optional Postgres schema + data loader
+├── docker-compose.yml           ← spins up PostgreSQL
+├── setup.sql                    ← schema + full data load
 ├── indexes.sql                  ← your CREATE INDEX statements (edit this)
 ├── explain_baseline.md          ← Task 1 output (fill this in)
 ├── explain_indexed.md           ← Task 3 output (fill this in)
@@ -248,16 +265,17 @@ module-3-stretch-sql-performance/
 
 ## 🔗 Resources
 
-- [SQLite: EXPLAIN QUERY PLAN](https://www.sqlite.org/eqp.html)
-- [SQLite: Query Planning](https://www.sqlite.org/queryplanner.html)
-- [SQLite: CREATE INDEX](https://www.sqlite.org/lang_createindex.html)
+- [PostgreSQL: EXPLAIN](https://www.postgresql.org/docs/current/sql-explain.html)
+- [PostgreSQL: Using EXPLAIN](https://www.postgresql.org/docs/current/using-explain.html)
+- [PostgreSQL: Indexes](https://www.postgresql.org/docs/current/indexes.html)
+- [PostgreSQL: Index Types](https://www.postgresql.org/docs/current/indexes-types.html)
 - [Original SQL Murder Mystery Game](https://mystery.knightlab.com) — try solving the case too! 🕵️
 
 ---
 
 ## 📬 Submission
 
-Push your completed repo to GitHub (include the `.db` file) and submit the link via the student portal.
+Push your completed repo to GitHub and submit the link via the student portal.
 
 ---
 

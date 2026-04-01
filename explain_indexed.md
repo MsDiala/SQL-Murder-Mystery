@@ -1,7 +1,7 @@
 # explain_indexed.md — After Indexing
 
 > Re-run the same 8 queries after applying your indexes from `indexes.sql`.
-> Compare with `explain_baseline.md` — look for SCAN → SEARCH improvements.
+> Compare with `explain_baseline.md` — look for Seq Scan → Index Scan improvements.
 
 ---
 

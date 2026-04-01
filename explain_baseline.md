@@ -1,12 +1,19 @@
 # explain_baseline.md — Before Indexing
 
+<<<<<<< stretch-performance
 > Run each query with `EXPLAIN ANALYZE` and paste the output below.
 > Connect: `docker exec -it murder_db psql -U postgres -d murder_mystery`
+=======
+> Run each query with `EXPLAIN ANALYZE` and paste the full output below.
+>
+> **Connect:** `docker exec -it murder_db psql -U postgres -d murder_mystery`
+>>>>>>> master
 
 ---
 
 ## Q1 — All murders in SQL City
 
+<<<<<<< stretch-performance
 **Execution Time:** 0.453 ms
 **Scan Type:** Seq Scan on crime_scene_report
 **Notes:** Filter removes 1225 rows to return only 3 —  optimization target
@@ -20,12 +27,21 @@ Sort  (cost=34.43..34.44 rows=1 width=53) (actual time=0.425..0.427 rows=3 loops
          Rows Removed by Filter: 1225
  Planning Time: 0.125 ms
  Execution Time: 0.453 ms
+=======
+**Execution Time:** ___ ms
+**Scan Type:** ___
+**Join Method:** ___
+
+```
+-- Paste EXPLAIN ANALYZE output here
+>>>>>>> master
 ```
 
 ---
 
 ## Q2 — People with their driver's license details
 
+<<<<<<< stretch-performance
 **Execution Time:** 63.802 ms
 **Scan Type:** Seq Scan on person + Seq Scan on drivers_license
 **Join:** Hash Join
@@ -43,12 +59,21 @@ Sort  (cost=1215.75..1240.78 rows=10011 width=60) (actual time=60.833..62.492 ro
                ->  Seq Scan on drivers_license dl  (cost=0.00..203.07 rows=10007 width=32) (actual time=0.033..3.653 rows=10007 loops=1)
  Planning Time: 1.689 ms
  Execution Time: 63.802 ms
+=======
+**Execution Time:** ___ ms
+**Scan Type:** ___
+**Join Method:** ___
+
+```
+-- Paste EXPLAIN ANALYZE output here
+>>>>>>> master
 ```
 
 ---
 
 ## Q3 — Gym members who checked in on January 9, 2018
 
+<<<<<<< stretch-performance
 **Execution Time:** 1.492 ms
 **Scan Type:** Seq Scan on get_fit_now_check_in + Seq Scan on get_fit_now_member
 **Join:** Hash Join
@@ -68,12 +93,21 @@ Sort  (cost=58.12..58.14 rows=10 width=28) (actual time=1.438..1.443 rows=10 loo
                ->  Seq Scan on get_fit_now_member m  (cost=0.00..3.84 rows=184 width=26) (actual time=0.019..0.121 rows=184 loops=1)
  Planning Time: 1.427 ms
  Execution Time: 1.492 ms
+=======
+**Execution Time:** ___ ms
+**Scan Type:** ___
+**Join Method:** ___
+
+```
+-- Paste EXPLAIN ANALYZE output here
+>>>>>>> master
 ```
 
 ---
 
 ## Q4 — Gold gym members and their income
 
+<<<<<<< stretch-performance
 **Execution Time:** 4.902 ms
 **Scan Type:** Seq Scan on person + Seq Scan on get_fit_now_member + Index Scan on income
 **Join:** Hash Join + Nested Loop
@@ -96,12 +130,21 @@ Sort  (cost=262.88..263.00 rows=51 width=24) (actual time=4.397..4.407 rows=49 l
                Index Cond: (ssn = p.ssn)
  Planning Time: 1.477 ms
  Execution Time: 4.902 ms
+=======
+**Execution Time:** ___ ms
+**Scan Type:** ___
+**Join Method:** ___
+
+```
+-- Paste EXPLAIN ANALYZE output here
+>>>>>>> master
 ```
 
 ---
 
 ## Q5 — People who attended Facebook events in 2018
 
+<<<<<<< stretch-performance
 **Execution Time:** 29.551 ms
 **Scan Type:** Seq Scan on facebook_event_checkin + Seq Scan on person
 **Join:** Hash Join
@@ -121,12 +164,21 @@ Sort  (cost=1159.80..1172.27 rows=4987 width=63) (actual time=26.651..27.856 row
                ->  Seq Scan on person p  (cost=0.00..196.11 rows=10011 width=18) (actual time=0.012..4.620 rows=10011 loops=1)
  Planning Time: 0.704 ms
  Execution Time: 29.551 ms
+=======
+**Execution Time:** ___ ms
+**Scan Type:** ___
+**Join Method:** ___
+
+```
+-- Paste EXPLAIN ANALYZE output here
+>>>>>>> master
 ```
 
 ---
 
 ## Q6 — Red-haired Tesla drivers
 
+<<<<<<< stretch-performance
 **Execution Time:** 7.677 ms
 **Scan Type:** Seq Scan on person + Seq Scan on drivers_license
 **Join:** Hash Join
@@ -146,12 +198,21 @@ Sort  (cost=475.54..475.54 rows=2 width=40) (actual time=7.631..7.635 rows=4 loo
                      Rows Removed by Filter: 10003
  Planning Time: 0.410 ms
  Execution Time: 7.677 ms
+=======
+**Execution Time:** ___ ms
+**Scan Type:** ___
+**Join Method:** ___
+
+```
+-- Paste EXPLAIN ANALYZE output here
+>>>>>>> master
 ```
 
 ---
 
 ## Q7 — Interview transcripts mentioning the gym or murder
 
+<<<<<<< stretch-performance
 **Execution Time:** 41.696 ms
 **Scan Type:** Seq Scan on interview + Index Scan on person
 **Join:** Nested Loop
@@ -166,12 +227,21 @@ Nested Loop  (cost=0.29..134.17 rows=1 width=61) (actual time=2.587..41.649 rows
          Index Cond: (id = i.person_id)
  Planning Time: 3.129 ms
  Execution Time: 41.696 ms
+=======
+**Execution Time:** ___ ms
+**Scan Type:** ___
+**Join Method:** ___
+
+```
+-- Paste EXPLAIN ANALYZE output here
+>>>>>>> master
 ```
 
 ---
 
 ## Q8 — Average income by car make
 
+<<<<<<< stretch-performance
 **Execution Time:** 35.906 ms
 **Scan Type:** Seq Scan on person + Seq Scan on income + Seq Scan on drivers_license
 **Join:** Hash Join x2 + HashAggregate
@@ -198,3 +268,12 @@ Sort  (cost=870.23..870.39 rows=65 width=55) (actual time=35.673..35.682 rows=64
  Planning Time: 1.284 ms
  Execution Time: 35.906 ms
 ```
+=======
+**Execution Time:** ___ ms
+**Scan Type:** ___
+**Join Method:** ___
+
+```
+-- Paste EXPLAIN ANALYZE output here
+```
+>>>>>>> master
