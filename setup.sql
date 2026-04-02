@@ -1,8 +1,11 @@
 -- =============================================================
---  SQL Murder Mystery — Postgres Setup
+--  SQL Murder Mystery — Postgres Setup (Fixed)
 --  Module 3 Stretch: SQL Performance Investigation
 --  Run: docker exec -i murder_db psql -U postgres -d murder_mystery < setup.sql
 -- =============================================================
+
+-- Disable FK checks during load to handle orphaned rows in source data
+SET session_replication_role = replica;
 
 -- Drop in reverse dependency order
 DROP TABLE IF EXISTS solution CASCADE;
@@ -38,34 +41,34 @@ CREATE TABLE drivers_license (
 CREATE TABLE person (
     id                   INTEGER PRIMARY KEY,
     name                 TEXT,
-    license_id           INTEGER REFERENCES drivers_license(id),
+    license_id           INTEGER,
     address_number       INTEGER,
     address_street_name  TEXT,
     ssn                  INTEGER
 );
 
 CREATE TABLE facebook_event_checkin (
-    person_id  INTEGER REFERENCES person(id),
+    person_id  INTEGER,
     event_id   INTEGER,
     event_name TEXT,
     date       INTEGER
 );
 
 CREATE TABLE interview (
-    person_id  INTEGER REFERENCES person(id),
+    person_id  INTEGER,
     transcript TEXT
 );
 
 CREATE TABLE get_fit_now_member (
     id                     TEXT PRIMARY KEY,
-    person_id              INTEGER REFERENCES person(id),
+    person_id              INTEGER,
     name                   TEXT,
     membership_start_date  INTEGER,
     membership_status      TEXT
 );
 
 CREATE TABLE get_fit_now_check_in (
-    membership_id   TEXT REFERENCES get_fit_now_member(id),
+    membership_id   TEXT,
     check_in_date   INTEGER,
     check_in_time   INTEGER,
     check_out_time  INTEGER
@@ -82873,12 +82876,16 @@ INSERT INTO income VALUES
 (999910617, 82600),
 (999942603, 11500);
 
+-- Re-enable FK enforcement
+SET session_replication_role = DEFAULT;
+
 -- Verify row counts
-SELECT 'crime_scene_report'    AS table_name, COUNT(*) AS rows FROM crime_scene_report
-UNION ALL SELECT 'drivers_license',   COUNT(*) FROM drivers_license
-UNION ALL SELECT 'person',            COUNT(*) FROM person
-UNION ALL SELECT 'facebook_event_checkin', COUNT(*) FROM facebook_event_checkin
-UNION ALL SELECT 'interview',         COUNT(*) FROM interview
-UNION ALL SELECT 'get_fit_now_member', COUNT(*) FROM get_fit_now_member
-UNION ALL SELECT 'get_fit_now_check_in', COUNT(*) FROM get_fit_now_check_in
-UNION ALL SELECT 'income',            COUNT(*) FROM income;
+SELECT 'crime_scene_report'       AS table_name, COUNT(*) AS rows FROM crime_scene_report
+UNION ALL SELECT 'drivers_license',               COUNT(*) FROM drivers_license
+UNION ALL SELECT 'person',                        COUNT(*) FROM person
+UNION ALL SELECT 'facebook_event_checkin',        COUNT(*) FROM facebook_event_checkin
+UNION ALL SELECT 'interview',                     COUNT(*) FROM interview
+UNION ALL SELECT 'get_fit_now_member',            COUNT(*) FROM get_fit_now_member
+UNION ALL SELECT 'get_fit_now_check_in',          COUNT(*) FROM get_fit_now_check_in
+UNION ALL SELECT 'income',                        COUNT(*) FROM income
+ORDER BY table_name;
