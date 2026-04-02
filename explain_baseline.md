@@ -1,10 +1,8 @@
 # explain_baseline.md — Before Indexing
 
-> Run each query with `EXPLAIN QUERY PLAN` and paste the output below.
-> Also run `.timer on` before each query to capture execution time.
+> Run each query with `EXPLAIN ANALYZE` and paste the full output below.
 >
-> **Connect:** `sqlite3 sql-murder-mystery.db`
-> Then type: `.timer on`
+> **Connect:** `docker exec -it murder_db psql -U postgres -d murder_mystery`
 
 ---
 
@@ -16,8 +14,9 @@
 **Scan Type:** Seq Scan  
 **Notes:** Full table scan on crime_scene_report; 1225 rows were scanned and filtered out to return only 3 matching rows.
 
+
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 Sort (cost=34.43..34.44 rows=1 width=53) (actual time=0.732..0.734 rows=3 loops=1)
 Sort Key: date DESC
@@ -36,11 +35,11 @@ Execution Time: 0.835 ms
 
 **Execution Time:** 93.306 ms  
 **Scan Type:** Seq Scan (person, drivers_license)  
-**Notes:** Both tables fully scanned; Hash Join used; expensive sort due to large result set (~10k rows).
+**Notes:** Both tables fully scanned; Hash Join used; expensive sort due to large result set (~10k rows)
 
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 Sort  (cost=1215.46..1240.48 rows=10007 width=60) (actual time=89.359..92.055 rows=10006 loops=1)
    Sort Key: p.name
@@ -65,8 +64,9 @@ Sort  (cost=1215.46..1240.48 rows=10007 width=60) (actual time=89.359..92.055 ro
 **Scan Type:** Seq Scan (check_in table)  
 **Notes:** Full scan on get_fit_now_check_in; 2693 rows filtered out by date condition.
 
+
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
  Sort  (cost=58.12..58.14 rows=10 width=28) (actual time=0.946..0.952 rows=10 loops=1)
    Sort Key: ci.check_in_time
@@ -90,13 +90,15 @@ rows=184 loops=1)
 
 ## Q4 — Gold gym members and their income
 
+
 **Execution Time:** 4.398 ms  
 **Scan Type:** Seq Scan + Index Scan  
 **Notes:** Seq Scan on person and member tables; Index Scan used on income (efficient lookup by SSN).
 
 
+
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 Sort  (cost=262.88..263.00 rows=51 width=24) (actual time=4.298..4.304 rows=49 loops=1)
    Sort Key: i.annual_income DESC
@@ -120,11 +122,13 @@ Sort  (cost=262.88..263.00 rows=51 width=24) (actual time=4.298..4.304 rows=49 l
 
 ## Q5 — People who attended Facebook events in 2018
 
+
 **Execution Time:** 16.363 ms  
 **Scan Type:** Seq Scan (facebook_event_checkin, person)  
 **Notes:** Large table scan (20k rows); heavy filtering on date removed ~15k rows.
+
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
  Sort  (cost=1159.80..1172.27 rows=4987 width=63) (actual time=15.280..15.894 rows=5025 loops=1)
@@ -146,12 +150,14 @@ Sort  (cost=262.88..263.00 rows=51 width=24) (actual time=4.298..4.304 rows=49 l
 
 ## Q6 — Red-haired Tesla drivers
 
+
 **Execution Time:** 6.604 ms  
 **Scan Type:** Seq Scan (person, drivers_license)  
 **Notes:** drivers_license scanned بالكامل (~10k rows) to find only 4 matches → inefficient filtering.
 
+
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
  Sort  (cost=475.54..475.54 rows=2 width=40) (actual time=6.561..6.566 rows=4 loops=1)
    Sort Key: p.name
@@ -173,11 +179,15 @@ Sort  (cost=262.88..263.00 rows=51 width=24) (actual time=4.298..4.304 rows=49 l
 
 ## Q7 — Interview transcripts mentioning the gym or murder
 
+
 **Execution Time:** 19.354 ms  
 **Scan Type:** Seq Scan (interview table)  
 **Notes:** ILIKE with wildcard (%...%) prevents index usage → full scan required.
+
+
+
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
  Nested Loop  (cost=0.29..134.17 rows=1 width=61) (actual time=0.846..19.322 rows=4 loops=1)
    ->  Seq Scan on interview i  (cost=0.00..125.86 rows=1 width=51) (actual time=0.836..19.263 rows=4 loops=1)     
@@ -193,12 +203,14 @@ Sort  (cost=262.88..263.00 rows=51 width=24) (actual time=4.298..4.304 rows=49 l
 
 ## Q8 — Average income by car make
 
+
 **Execution Time:** 63.585 ms  
 **Scan Type:** Seq Scan (all tables)  
 **Notes:** Heavy aggregation with multiple joins; all tables scanned  → expensive operation.
 
+
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
  Sort  (cost=870.19..870.36 rows=65 width=55) (actual time=62.170..62.181 rows=64 loops=1)
    Sort Key: (round(avg(i.annual_income), 0)) DESC

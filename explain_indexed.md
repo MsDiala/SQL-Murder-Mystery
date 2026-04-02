@@ -1,7 +1,7 @@
 # explain_indexed.md — After Indexing
 
 > Re-run the same 8 queries after applying your indexes from `indexes.sql`.
-> Compare with `explain_baseline.md` — look for SCAN → SEARCH improvements.
+> Compare with `explain_baseline.md` — look for Seq Scan → Index Scan improvements.
 
 ---
 
@@ -11,7 +11,7 @@
 **Scan Type:** Index Scan  
 **Index Used:** idx_crime_city_type
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
  Sort  (cost=8.31..8.31 rows=1 width=53) (actual time=0.208..0.208 rows=3 loops=1)
    Sort Key: date DESC
@@ -30,7 +30,7 @@
 **Index Used:** None
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 Q2 — People with their driver’s license details
 Sort  (cost=1215.46..1240.48 rows=10007 width=60) (actual time=50.425..52.075 rows=10006 loops=1)
@@ -56,7 +56,7 @@ Sort  (cost=1215.46..1240.48 rows=10007 width=60) (actual time=50.425..52.075 ro
 **Index Used:** idx_checkin_date
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
 
@@ -88,7 +88,7 @@ Sort  (cost=26.81..26.84 rows=10 width=28) (actual time=0.361..0.388 rows=10 loo
 **Index Used:** income_pkey
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
  Sort  (cost=262.88..263.00 rows=51 width=24) (actual time=3.619..3.630 rows=49 loops=1)
@@ -117,7 +117,7 @@ Sort  (cost=26.81..26.84 rows=10 width=28) (actual time=0.361..0.388 rows=10 loo
 **Scan Type:** Bitmap Index Scan + Bitmap Heap Scan  
 **Index Used:** idx_facebook_date
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
 
@@ -146,7 +146,7 @@ Sort  (cost=26.81..26.84 rows=10 width=28) (actual time=0.361..0.388 rows=10 loo
 **Scan Type:** Bitmap Index Scan + Index Scan  
 **Index Used:** idx_license_hair_car, idx_person_license_id
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
 
@@ -173,7 +173,7 @@ Sort  (cost=26.81..26.84 rows=10 width=28) (actual time=0.361..0.388 rows=10 loo
 **Index Used:** None
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
  Nested Loop  (cost=0.29..134.17 rows=1 width=61) (actual time=0.918..22.079 rows=4 loops=1)
@@ -195,7 +195,7 @@ Sort  (cost=26.81..26.84 rows=10 width=28) (actual time=0.361..0.388 rows=10 loo
 **Index Used:** None (indirect improvement)
 
 ```
--- Paste EXPLAIN QUERY PLAN output here
+-- Paste EXPLAIN ANALYZE output here
 ```
 
  Sort  (cost=870.19..870.36 rows=65 width=55) (actual time=23.013..23.036 rows=64 loops=1)
