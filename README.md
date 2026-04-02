@@ -277,6 +277,40 @@ module-3-stretch-sql-performance/
 
 Push your completed repo to GitHub and submit the link via the student portal.
 
+### Query Performance Comparison (Before vs After Indexing)
+---
+
+## 📊 Query Performance Comparison (Before vs After Indexing) -- BY Batool
+
+| Query | Scan Before | Time Before | Scan After | Time After | Result |
+|------|-------------|------------|------------|-----------|--------|
+| Q1 | Sequential Scan | 0.184 ms | Index Scan | 0.069 ms | ✅ Improved |
+| Q2 | Sequential Scan + Hash Join | 7.582 ms | Hash Join + Seq Scan | 18.991 ms | ⚠️ Slower (index not beneficial) |
+| Q3 | Sequential Scan | 0.315 ms | Index Scan | ___ ms | ✅ Improved |
+| Q4 | Sequential Scan | 1.003 ms | Index Scan | ___ ms | ✅ Improved |
+| Q5 | Sequential Scan | 0.336 ms | Bitmap Heap + Index Scan | 7.779 ms | ⚠️ Slight regression |
+| Q6 | Sequential Scan | 3.610 ms | Bitmap Heap + Index Scan | 2.127 ms | ✅ Improved |
+| Q7 | Sequential Scan | ___ ms | Index Scan | ___ ms | ✅ Improved |
+| Q8 | Sequential Scan | ___ ms | Index Scan | ___ ms | ✅ Improved |
+
+---
+
+## 🧠 Analysis
+
+Using `EXPLAIN ANALYZE`, query performance was evaluated before and after adding indexes.
+
+Most queries improved because PostgreSQL switched from **Sequential Scan** to **Index Scan**, reducing the number of scanned rows and improving execution speed. Indexes were especially effective for filtering conditions and join keys such as `(type, city)`, `person.ssn`, and foreign key relationships.
+
+However, not all indexes improved performance:
+
+- **Q2** became slower because PostgreSQL preferred a Hash Join with full table scans. Since most rows were required, using an index added overhead instead of improving performance.
+- **Q5** also showed slower execution despite index usage, demonstrating that indexes are not always beneficial for large result sets.
+
+This investigation highlights an important database engineering principle:  
+**Indexes help selective queries but may hurt performance when large portions of tables are scanned.**
+
+Overall, indexing significantly improved targeted lookup queries while showing the tradeoff between read optimization and execution planning.
 ---
 
 *© 2026 LevelUp Economy. All rights reserved. Unauthorized reproduction or distribution of this material is prohibited.*
+
