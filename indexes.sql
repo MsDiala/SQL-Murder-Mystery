@@ -41,4 +41,24 @@
 
 -- ➕ Add your own indexes below based on your EXPLAIN QUERY PLAN analysis:
 
+-- =============================================================
+--  indexes.sql — SQL Murder Mystery Performance Investigation
+-- =============================================================
+
+-- Indexes المقترحة بناءً على تحليل الـ Baseline
+
+CREATE INDEX idx_person_license   ON person(license_id);
+CREATE INDEX idx_person_ssn       ON person(ssn);
+
+CREATE INDEX idx_facebook_date    ON facebook_event_checkin(date);
+CREATE INDEX idx_facebook_person  ON facebook_event_checkin(person_id);
+
+CREATE INDEX idx_checkin_date     ON get_fit_now_check_in(check_in_date);
+
+CREATE INDEX idx_drivers_hair_car ON drivers_license(hair_color, car_make);
+
+CREATE INDEX idx_member_status    ON get_fit_now_member(membership_status);
+
+CREATE INDEX idx_crime_city_type  ON crime_scene_report(city, type);
+
 
