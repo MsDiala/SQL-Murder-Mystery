@@ -41,4 +41,18 @@
 
 -- ➕ Add your own indexes below based on your EXPLAIN QUERY PLAN analysis:
 
+-- Indexes for Q1
+CREATE INDEX idx_crime_city_type ON crime_scene_report(city, type);
 
+-- Indexes for Foreign Keys (Q2, Q6, Q8, Q4)
+CREATE INDEX idx_person_license ON person(license_id);
+CREATE INDEX idx_person_ssn ON person(ssn);
+CREATE INDEX idx_income_ssn ON income(ssn);
+
+-- Indexes for highly filtered columns (Q3, Q6)
+CREATE INDEX idx_checkin_date ON get_fit_now_check_in(check_in_date);
+CREATE INDEX idx_dl_hair_car ON drivers_license(hair_color, car_make);
+
+-- Indexes for the largest table (Q5)
+CREATE INDEX idx_facebook_date ON facebook_event_checkin(date);
+CREATE INDEX idx_facebook_person ON facebook_event_checkin(person_id);
