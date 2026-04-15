@@ -1,44 +1,104 @@
--- =============================================================
---  indexes.sql — SQL Murder Mystery Performance Investigation
---  Add your CREATE INDEX statements here (Task 2)
---
---  SQLite:  sqlite3 sql-murder-mystery.db < indexes.sql
---  Postgres: docker exec -i murder_db psql -U postgres -d murder_mystery < indexes.sql
--- =============================================================
 
 -- ✅ Starter indexes — uncomment what you think will help, add your own
 
--- Q1: Filter crimes by city and type
--- CREATE INDEX idx_crime_city_type ON crime_scene_report(city, type);
+-- Q1 — All murders in SQL City
 
--- Q2, Q6, Q8: JOIN person → drivers_license
--- CREATE INDEX idx_person_license_id ON person(license_id);
+SELECT date, description
+FROM crime_scene_report
+WHERE city = 'SQL City'
+  AND type = 'murder'
+ORDER BY date DESC;
 
--- Q3: Filter gym check-ins by date
--- CREATE INDEX idx_checkin_date ON get_fit_now_check_in(check_in_date);
+-- Q2 — People with their driver's license details
 
--- Q3: JOIN gym check-ins → members
--- CREATE INDEX idx_checkin_membership ON get_fit_now_check_in(membership_id);
+SELECT p.name, p.address_number, p.address_street_name,
+       dl.age, dl.eye_color, dl.hair_color, dl.car_make, dl.car_model
+FROM person p
+JOIN drivers_license dl ON p.license_id = dl.id
+ORDER BY p.name;
 
--- Q4: Filter gym members by status
--- CREATE INDEX idx_member_status ON get_fit_now_member(membership_status);
+-- Q3 — Gym members who checked in on January 9, 2018
 
--- Q4: JOIN gym members → person
--- CREATE INDEX idx_member_person_id ON get_fit_now_member(person_id);
+SELECT m.name, m.membership_status, ci.check_in_time, ci.check_out_time
+FROM get_fit_now_member m
+JOIN get_fit_now_check_in ci ON m.id = ci.membership_id
+WHERE ci.check_in_date = 20180109
+ORDER BY ci.check_in_time;
 
--- Q5: Filter Facebook events by date range
--- CREATE INDEX idx_facebook_date ON facebook_event_checkin(date);
+-- Q4 — Gold gym members and their income
 
--- Q5, Q7: JOIN facebook/interview → person
--- CREATE INDEX idx_facebook_person_id ON facebook_event_checkin(person_id);
--- CREATE INDEX idx_interview_person_id ON interview(person_id);
+SELECT m.name, m.membership_status, i.annual_income
+FROM get_fit_now_member m
+JOIN person p ON m.person_id = p.id
+JOIN income i ON p.ssn = i.ssn
+WHERE m.membership_status = 'gold'
+ORDER BY i.annual_income DESC;
 
--- Q4, Q8: JOIN person → income via SSN
--- CREATE INDEX idx_person_ssn ON person(ssn);
+-- Q5 — People who attended Facebook events in 2018
 
--- Q6: Filter drivers_license by hair color + car make (composite)
--- CREATE INDEX idx_license_hair_car ON drivers_license(hair_color, car_make);
+
+SELECT p.name, fe.event_name, fe.date
+FROM person p
+JOIN facebook_event_checkin fe ON p.id = fe.person_id
+WHERE fe.date BETWEEN 20180101 AND 20181231
+ORDER BY fe.date DESC;
+
+-- Q6 — Red-haired Tesla drivers
+
+SELECT p.name, dl.hair_color, dl.car_make, dl.car_model, dl.plate_number
+FROM person p
+JOIN drivers_license dl ON p.license_id = dl.id
+WHERE dl.hair_color = 'red'
+  AND dl.car_make = 'Tesla'
+ORDER BY p.name;
+
+-- Q7 — Interview transcripts mentioning the gym or murder
+
+SELECT p.name, i.transcript
+FROM interview i
+JOIN person p ON i.person_id = p.id
+WHERE i.transcript LIKE '%gym%'
+   OR i.transcript LIKE '%murder%';
+
+-- Q8 — Average income by car make
+
+SELECT dl.car_make,
+       COUNT(*) AS drivers,
+       ROUND(AVG(i.annual_income), 0) AS avg_income,
+       MIN(i.annual_income) AS min_income,
+       MAX(i.annual_income) AS max_income
+FROM drivers_license dl
+JOIN person p ON dl.id = p.license_id
+JOIN income i ON p.ssn = i.ssn
+GROUP BY dl.car_make
+ORDER BY avg_income DESC;
 
 -- ➕ Add your own indexes below based on your EXPLAIN QUERY PLAN analysis:
+-- Q1: 
+CREATE INDEX idx_crime_date_desc 
+ON crime_scene_report(date DESC);
 
+-- Q2: 
+CREATE INDEX idx_person_name 
+ON person(name);
+
+-- Q3:
+CREATE INDEX idx_checkin_membership_id 
+ON get_fit_now_check_in(membership_id);
+
+-- Q4: 
+CREATE INDEX idx_income_ssn 
+ON income(ssn);
+
+-- Q5: 
+CREATE INDEX idx_facebook_date_desc 
+ON facebook_event_checkin(date DESC);
+
+-- Q6:
+CREATE INDEX idx_license_car_hair 
+ON drivers_license(car_make, hair_color);
+
+-- Q8:
+CREATE INDEX idx_license_car_make 
+ON drivers_license(car_make);
 
